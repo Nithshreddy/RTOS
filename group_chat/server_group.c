@@ -126,16 +126,10 @@ void sendPrivateMessage(char* s, char* name){
   pthread_mutex_unlock(&clients_mutex);
 }
 
-
-
-
-
 // For counting number of client
 static _Atomic unsigned int cli_count = 0;
 // Unique ID for each Client
 static int uid = 10;
-
-
 
 // Handling client Messages
 void* handle_client(void* arg){
@@ -157,7 +151,6 @@ void* handle_client(void* arg){
     error("[!] Client Name not entered properly");
     leave_flag = 1;
   }
-// ................Client has joined the server
 
   // Name received successfully
   // Store the name
@@ -174,22 +167,15 @@ void* handle_client(void* arg){
 
   // Clear the buffer
   bzero(buffer, BUFFER_SZ);
-
-
-
-
-  // For exchanging and receiving the messages from other clients
+// For exchanging and receiving the messages from other clients
   while(1){
     if (leave_flag){
 			break;
 		}
-
-
     struct message_type recv_structure;
     int receive = recv(cli->sockfd, &recv_structure, sizeof(recv_structure), 0);
     if(receive > 0){
-      // printf("RN: %s \n",recv_structure.ReceiverName);
-      // printf("M: %s \n",recv_structure.message);
+
       printf("KEY: %d \n",recv_structure.chatP_G);
 
       // THis is for group Message
@@ -200,21 +186,10 @@ void* handle_client(void* arg){
         printf("[Group Message] 👉 %s \n", recv_structure.message);
       }
 
-      // Private Message
-      // else if(strcmp(recv_structure.ReceiverName, "all")){
-      //   printf("Private Message: %s", recv_structure.senderName);
-      // }
       else{
         printf("Private Message: %s -> %s \n",recv_structure.ReceiverName, recv_structure.senderName);
         sendPrivateMessage(recv_structure.message, recv_structure.ReceiverName);
       }
-
-      // // Send the message received from this client to all other clients
-      // send_message(buffer, cli->uid);
-      // // TODO Ch
-      // str_trim_lf(buffer, strlen(buffer));
-      // // printf("%s -> %s\n", buffer, cli->name);
-      //       printf("%s \n", buffer);
     }
 
     // If the person exits by any means

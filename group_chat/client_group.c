@@ -46,47 +46,12 @@ void str_trim_lf (char* arr, int length) {
 
 void send_msg_handler(){
     while(1){
-    int action;
-    printf("[0]Group Chat / [1]Private Chat \n");
-    scanf("%d", &action);
+    int chat_type;
+    printf("[1]Group_chat / [0]Private_chat \n");
+    scanf("%d", &chat_type);
 
-   //Group Chat
-    if(action == 0){
-      // Akshay: this is akshay
-      char message[LENGTH] = {};
-	    char buffer[LENGTH] = {};
-
-      struct message_type mt;
-
-      // Taking Message input and removing /0
-      printf("Enter Message to send to group: \n");
-      // fgets(message, LENGTH, stdin);
-      scanf("%s", &message);
-      str_trim_lf(message, LENGTH);
-
-      // It the input exit?
-      // Send the Message
-      sprintf(buffer, "%s: %s\n", name, message);
-      printf("%s",buffer);
-      mt.chatP_G = 0;
-      char temp[BUFFER_SZ] = "all";
-      strcpy(mt.ReceiverName, temp);
-      strcpy(mt.senderName, name);
-      strcpy(mt.message, buffer);
-      // Clear the buffer
-      // bzero(message, LENGTH);
-      // bzero(buffer, LENGTH + 32);
-
-      int n = send(sockfd, &mt, sizeof(mt), 0);
-      // printf(n);
-
-      // if(n < 0){
-      //   printf("Error in sending message");
-      // }
-    }
-
-  // Private chat
-    else if(action == 1){
+// Private chat
+ if(chat_type == 0){
       char nameR[BUFFER_SZ];
       printf("Enter the name you want to send: \n");
       scanf("%s",&nameR);
@@ -113,70 +78,34 @@ void send_msg_handler(){
 
       int n = send(sockfd, &mt, sizeof(mt), 0);
     }
+
+//Group Chat
+ else if(chat_type == 1){
+
+   char message[LENGTH] = {};
+   char buffer[LENGTH] = {};
+
+   struct message_type mt;
+
+   // Taking Message input and removing /0
+   printf("Message to the group: \n");
+   // fgets(message, LENGTH, stdin);
+   scanf("%s", &message);
+   str_trim_lf(message, LENGTH);
+
+   // It the input exit?
+   // Send the Message
+   sprintf(buffer, "%s: %s\n", name, message);
+   printf("%s",buffer);
+   mt.chatP_G = 0;
+   char temp[BUFFER_SZ] = "all";
+   strcpy(mt.ReceiverName, temp);
+   strcpy(mt.senderName, name);
+   strcpy(mt.message, buffer);
+   int n = send(sockfd, &mt, sizeof(mt), 0);
   }
+ }
 }
-
-// void send_msg_handler() {
-//   char message[LENGTH] = {};
-// 	char buffer[LENGTH + 32] = {};
-
-//   while(1) {
-//     // Based on user reply:
-//     int pusher;
-
-//     printf("Group Message[1] or Normal Message[2] ?");
-//     scanf("%d",&pusher);
-//     // fgets(pusher, 2, stdin);
-
-//     // Group Message
-//     if(pusher == 1){
-//     // str_overwrite_stdout();
-//     fgets(message, LENGTH, stdin);
-//     str_trim_lf(message, LENGTH);
-
-//     if (strcmp(message, "exit") == 0) {
-// 			break;
-//     } else {
-//       sprintf(buffer, "%s: %s\n", name, message);
-//       send(sockfd, buffer, strlen(buffer), 0);
-//     }
-
-// 		bzero(message, LENGTH);
-//     bzero(buffer, LENGTH + 32);
-//     }
-
-
-
-//     // Private Message
-//     else if(pusher == 2){
-//       // char sender_name[32];
-//       // printf("Enter sender name: ");
-//       // scanf("%s", &sender_name);
-//       // printf("Enter Message: ");
-//       // // scanf("%s", message);
-//       // fgets(message, LENGTH, stdin);
-//       // // str_trim_lf(message, LENGTH);
-
-//       // // if (strcmp(message, "exit") == 0) {
-// 		  // // 	break;
-//       // // }
-
-//       //   printf("Message sent!");
-
-//       //   struct message_type mt;
-//       //   strcpy(mt.ReceiverName, sender_name);
-//       //   strcpy(mt.senderName, name);
-//       //   strcpy(mt.message, message);
-//       //   strcpy(mt.chatP_G, "2");
-
-//       //   send(sockfd, &mt, sizeof(mt), 0);
-
-
-//     }
-//   }
-//   catch_ctrl_c_and_exit(2);
-// }
-
 void recv_msg_handler() {
 	char message[LENGTH] = {};
   while (1) {
@@ -206,7 +135,7 @@ int main(int argc, char **argv){
   // Taking in the name of length 32
   fgets(name, 32, stdin);
   str_trim_lf(name, strlen(name));
-  printf("[+] Name Entered! \n");
+  printf("[+] Name joined \n");
 
   // Socket Connection
   struct sockaddr_in server_addr;
@@ -227,9 +156,9 @@ int main(int argc, char **argv){
   //[1] Socket connected so Send name
   send(sockfd, name, 32, 0);
 
-  // One thread for starting the thread and other for receiving
-  // Starting the threading
-    // Sending Thread
+//Threading to avoid the traffic in between clients & server
+
+//Sending thread
   pthread_t send_msg_thread;
   if(pthread_create(&send_msg_thread, NULL, (void *) send_msg_handler, NULL) != 0){
 		printf("ERROR: pthread\n");
