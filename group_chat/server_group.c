@@ -183,7 +183,7 @@ void* handle_client(void* arg){
         // Except this one person..send it to everyone
         send_message(recv_structure.message, cli->uid);
         // Printing the message in the server
-        printf("[Group Message] 👉 %s \n", recv_structure.message);
+        printf("[Group Message]  %s \n", recv_structure.message);
       }
 
       else{
